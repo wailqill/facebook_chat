@@ -11,13 +11,12 @@ class FacebookChat
     @agent = WWW::Mechanize.new
     @agent.user_agent_alias = 'Windows IE 7'
     f = @agent.get("http://facebook.com/login.php").forms.first
-    f.fields.name("email").value = @email
-    f.fields.name("pass").value = @pass
+    f.set_fields(:email => @email, :pass => @pass)
     f.submit
-    body = @agent.get("http://www.facebook.com/home.php").body
-
+    body = @agent.get("http://www.facebook.com/home.php").root.to_html
+    
     # parse info out of facebook home page
-    @uid = %r{<a href=".+?/profile.php\?id=(\d+)" class="profile_nav_link">Profile</a>}.match(body)[1].to_i
+    @uid = %r{<a href=".+?/profile.php\?id=(\d+)&amp;ref=profile">Profile</a>}.match(body)[1].to_i
     @channel = %r{"channel(\d+)"}.match(body)[1]
     @post_form_id = %r{<input type="hidden" id="post_form_id" name="post_form_id" value="([^"]+)}.match(body)[1]
   end
